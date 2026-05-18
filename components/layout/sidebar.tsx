@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
@@ -65,11 +65,18 @@ export function Sidebar() {
   const pathname = usePathname()
   const [isExpanded, setIsExpanded] = useState(true)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
+    setTheme(resolvedTheme === "dark" ? "light" : "dark")
   }
+
+  const isDark = mounted ? resolvedTheme === "dark" : true
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -157,7 +164,7 @@ export function Sidebar() {
                 onSelect={(e) => e.preventDefault()}
               >
                 <div className="flex items-center">
-                  {theme === "dark" ? (
+                  {isDark ? (
                     <Moon className="mr-2 h-4 w-4" />
                   ) : (
                     <Sun className="mr-2 h-4 w-4" />
@@ -165,7 +172,7 @@ export function Sidebar() {
                   Dark Mode
                 </div>
                 <Switch 
-                  checked={theme === "dark"} 
+                  checked={isDark} 
                   onCheckedChange={toggleTheme}
                   className="ml-2"
                 />
