@@ -13,7 +13,6 @@ import {
   ChevronDown,
   ChevronRight,
   Coffee,
-  Settings,
   LogOut,
   User,
   Building2,
@@ -21,6 +20,8 @@ import {
   Moon,
   Sun,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -61,11 +62,16 @@ const navigation = [
   },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  isMobileOpen?: boolean
+  onMobileClose?: () => void
+}
+
+export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname()
   const [isExpanded, setIsExpanded] = useState(true)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -78,30 +84,60 @@ export function Sidebar() {
 
   const isDark = mounted ? resolvedTheme === "dark" : true
 
+  // Close mobile menu when navigating
+  const handleNavClick = () => {
+    if (onMobileClose) {
+      onMobileClose()
+    }
+  }
+
   return (
     <TooltipProvider delayDuration={0}>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          onClick={onMobileClose}
+        />
+      )}
+
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300",
-          isExpanded ? "w-64" : "w-[72px]"
+          "fixed top-0 z-50 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300",
+          // Desktop
+          "lg:left-0",
+          isExpanded ? "lg:w-64" : "lg:w-[72px]",
+          // Mobile
+          "w-72 lg:translate-x-0",
+          isMobileOpen ? "left-0 translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Logo */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3" onClick={handleNavClick}>
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/60">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
-            {isExpanded && (
+            {(isExpanded || isMobileOpen) && (
               <span className="text-lg font-semibold text-sidebar-foreground">
                 VirtualE
               </span>
             )}
           </Link>
+          
+          {/* Close button for mobile */}
+          <button
+            onClick={onMobileClose}
+            className="rounded-md p-1.5 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors lg:hidden"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          {/* Collapse button for desktop */}
           {isExpanded && (
             <button
               onClick={() => setIsExpanded(false)}
-              className="rounded-md p-1.5 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+              className="hidden lg:flex rounded-md p-1.5 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
             >
               <ChevronRight className="h-4 w-4 rotate-180" />
             </button>
@@ -115,7 +151,7 @@ export function Sidebar() {
               <button
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-sidebar-accent",
-                  isExpanded ? "justify-start" : "justify-center"
+                  (isExpanded || isMobileOpen) ? "justify-start" : "justify-center"
                 )}
               >
                 <div className="relative">
@@ -127,7 +163,7 @@ export function Sidebar() {
                   </Avatar>
                   <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-sidebar bg-emerald-500" />
                 </div>
-                {isExpanded && (
+                {(isExpanded || isMobileOpen) && (
                   <>
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-sm font-medium text-sidebar-foreground">
@@ -205,12 +241,13 @@ export function Sidebar() {
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
               
-              if (!isExpanded) {
+              if (!isExpanded && !isMobileOpen) {
                 return (
                   <Tooltip key={item.name}>
                     <TooltipTrigger asChild>
                       <Link
                         href={item.href}
+                        onClick={handleNavClick}
                         className={cn(
                           "flex items-center justify-center rounded-lg p-2.5 transition-all",
                           isActive
@@ -232,6 +269,7 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={handleNavClick}
                   className={cn(
                     "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                     isActive
@@ -249,7 +287,7 @@ export function Sidebar() {
 
         {/* Bottom Section - Take a Break Button */}
         <div className="border-t border-sidebar-border p-3">
-          {isExpanded ? (
+          {(isExpanded || isMobileOpen) ? (
             <button className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-xl transition-all hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]" style={{
               background: "linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%)",
               boxShadow: "0 0 20px rgba(147, 51, 234, 0.4)"
@@ -286,9 +324,9 @@ export function Sidebar() {
           )}
         </div>
 
-        {/* Collapse Toggle (when collapsed) */}
+        {/* Collapse Toggle (when collapsed on desktop) */}
         {!isExpanded && (
-          <div className="border-t border-sidebar-border p-3">
+          <div className="hidden lg:block border-t border-sidebar-border p-3">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -306,5 +344,17 @@ export function Sidebar() {
         )}
       </aside>
     </TooltipProvider>
+  )
+}
+
+// Export a mobile trigger button
+export function MobileMenuButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors lg:hidden"
+    >
+      <Menu className="h-5 w-5" />
+    </button>
   )
 }
