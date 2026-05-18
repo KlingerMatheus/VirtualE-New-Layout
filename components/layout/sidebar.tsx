@@ -250,16 +250,32 @@ export function Sidebar() {
         {/* Bottom Section - Take a Break Button */}
         <div className="border-t border-sidebar-border p-3">
           {isExpanded ? (
-            <button className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 transition-all hover:shadow-xl hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98]">
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 transition-opacity group-hover:opacity-100" />
+            <button className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-xl transition-all hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]" style={{
+              background: "linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%)",
+              boxShadow: "0 0 20px rgba(147, 51, 234, 0.4)"
+            }} onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = "0 0 30px rgba(147, 51, 234, 0.6)"
+            }} onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = "0 0 20px rgba(147, 51, 234, 0.4)"
+            }}>
+              <div className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100" style={{
+                background: "linear-gradient(135deg, var(--purple-500) 0%, var(--purple-600) 100%)"
+              }} />
               <Coffee className="relative h-5 w-5" />
               <span className="relative">Take a Break</span>
-              <div className="absolute -right-2 -top-2 h-12 w-12 rounded-full bg-white/20 blur-xl" />
+              <div className="absolute -right-2 -top-2 h-12 w-12 rounded-full blur-xl opacity-50" style={{ backgroundColor: "var(--purple-400)" }} />
             </button>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-3 text-white shadow-lg shadow-amber-500/30 transition-all hover:shadow-xl hover:shadow-amber-500/40 hover:scale-105 active:scale-95">
+                <button className="group relative flex w-full items-center justify-center overflow-hidden rounded-xl p-3 text-white shadow-lg transition-all hover:shadow-xl hover:scale-105 active:scale-95" style={{
+                  background: "linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%)",
+                  boxShadow: "0 0 20px rgba(147, 51, 234, 0.4)"
+                }} onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = "0 0 30px rgba(147, 51, 234, 0.6)"
+                }} onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "0 0 20px rgba(147, 51, 234, 0.4)"
+                }}>
                   <Coffee className="h-5 w-5" />
                 </button>
               </TooltipTrigger>
