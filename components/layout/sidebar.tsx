@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import {
   Heart,
@@ -11,11 +12,14 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronRight,
-  Search,
   Coffee,
   Settings,
-  HelpCircle,
   LogOut,
+  User,
+  Building2,
+  BookOpen,
+  Moon,
+  Sun,
   Sparkles,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -32,42 +36,40 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Switch } from "@/components/ui/switch"
 
 const navigation = [
   {
     name: "Emotional States",
     href: "/emotional-states",
     icon: Heart,
-    badge: null,
   },
   {
     name: "Milestones",
     href: "/milestones",
     icon: Flag,
-    badge: "3",
   },
   {
     name: "Team",
     href: "/team",
     icon: Users,
-    badge: null,
   },
   {
     name: "Team Feedback",
     href: "/team-feedback",
     icon: MessageSquare,
-    badge: "12",
   },
-]
-
-const quickActions = [
-  { name: "Buscar", icon: Search, shortcut: "⌘K" },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const [isExpanded, setIsExpanded] = useState(true)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark")
+  }
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -150,56 +152,49 @@ export function Sidebar() {
                 </p>
               </div>
               <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="flex items-center justify-between cursor-pointer"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <div className="flex items-center">
+                  {theme === "dark" ? (
+                    <Moon className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Sun className="mr-2 h-4 w-4" />
+                  )}
+                  Dark Mode
+                </div>
+                <Switch 
+                  checked={theme === "dark"} 
+                  onCheckedChange={toggleTheme}
+                  className="ml-2"
+                />
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                Configurações
+                <User className="mr-2 h-4 w-4" />
+                Profile
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <HelpCircle className="mr-2 h-4 w-4" />
-                Ajuda
+                <Building2 className="mr-2 h-4 w-4" />
+                Company Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <BookOpen className="mr-2 h-4 w-4" />
+                Best Practices
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
-                Sair
+                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        {/* Quick Actions */}
-        {isExpanded && (
-          <div className="px-3 py-2">
-            {quickActions.map((action) => (
-              <button
-                key={action.name}
-                className="flex w-full items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2 text-sm text-sidebar-muted transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-              >
-                <action.icon className="h-4 w-4" />
-                <span className="flex-1 text-left">{action.name}</span>
-                <kbd className="rounded bg-sidebar-border px-1.5 py-0.5 text-[10px] font-mono">
-                  {action.shortcut}
-                </kbd>
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2">
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-1">
-            {!isExpanded && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="flex w-full items-center justify-center rounded-lg p-2 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors mb-2">
-                    <Search className="h-5 w-5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Buscar</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname?.startsWith(item.href + "/")
               
@@ -217,11 +212,6 @@ export function Sidebar() {
                         )}
                       >
                         <item.icon className="h-5 w-5" />
-                        {item.badge && (
-                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                            {item.badge}
-                          </span>
-                        )}
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent side="right">
@@ -244,40 +234,30 @@ export function Sidebar() {
                 >
                   <item.icon className="h-5 w-5 shrink-0" />
                   <span className="flex-1">{item.name}</span>
-                  {item.badge && (
-                    <span
-                      className={cn(
-                        "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold",
-                        isActive
-                          ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-primary/20 text-primary"
-                      )}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
                 </Link>
               )
             })}
           </div>
         </nav>
 
-        {/* Bottom Section */}
+        {/* Bottom Section - Take a Break Button */}
         <div className="border-t border-sidebar-border p-3">
           {isExpanded ? (
-            <button className="flex w-full items-center gap-3 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3 py-2.5 text-sm font-medium text-amber-500 transition-all hover:from-amber-500/30 hover:to-orange-500/30">
-              <Coffee className="h-5 w-5" />
-              <span>Fazer uma pausa</span>
+            <button className="group relative flex w-full items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/30 transition-all hover:shadow-xl hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98]">
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 transition-opacity group-hover:opacity-100" />
+              <Coffee className="relative h-5 w-5" />
+              <span className="relative">Take a Break</span>
+              <div className="absolute -right-2 -top-2 h-12 w-12 rounded-full bg-white/20 blur-xl" />
             </button>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 p-2.5 text-amber-500 transition-all hover:from-amber-500/30 hover:to-orange-500/30">
+                <button className="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-3 text-white shadow-lg shadow-amber-500/30 transition-all hover:shadow-xl hover:shadow-amber-500/40 hover:scale-105 active:scale-95">
                   <Coffee className="h-5 w-5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Fazer uma pausa</p>
+                <p>Take a Break</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -296,7 +276,7 @@ export function Sidebar() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Expandir menu</p>
+                <p>Expand menu</p>
               </TooltipContent>
             </Tooltip>
           </div>
